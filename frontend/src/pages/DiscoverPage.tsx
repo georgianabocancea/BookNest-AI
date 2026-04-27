@@ -17,9 +17,9 @@ interface Book {
 
 const SORT_OPTIONS = [
   { value: 'az', label: 'A–Z' },
-  { value: 'top_rated', label: '⭐ Top Rated' },
-  { value: 'newest', label: '🆕 Newest' },
-  { value: 'oldest', label: '📜 Oldest' },
+  { value: 'top_rated', label: 'Top Rated' },
+  { value: 'newest', label: 'Newest' },
+  { value: 'oldest', label: 'Oldest' },
 ];
 
 const DiscoverPage = () => {
@@ -34,6 +34,7 @@ const DiscoverPage = () => {
   const genre = searchParams.get('genre') || '';
   const author = searchParams.get('author') || '';
   const sort = searchParams.get('sort') || 'az';
+  const longestSortLabel = Math.max(...SORT_OPTIONS.map(opt => opt.label.length));
 
   useEffect(() => {
     fetchBooks();
@@ -122,21 +123,25 @@ const DiscoverPage = () => {
           </div>
         )}
 
-        {/* Sort options */}
-        <div className="flex gap-2 mb-6 flex-wrap">
-          {SORT_OPTIONS.map(opt => (
-            <button
-              key={opt.value}
-              onClick={() => updateParam('sort', opt.value)}
-              className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-all ${
-                sort === opt.value
-                  ? 'bg-amber-700 text-white'
-                  : 'bg-white text-gray-600 hover:bg-amber-100'
-              }`}
+        {/* Filter dropdown */}
+        <div className="mb-6 flex items-center gap-3">
+          <span className="text-sm font-medium text-gray-700">Filter by:</span>
+          <div className="relative" style={{ width: `${longestSortLabel + 4}ch` }}>
+            <select
+              value={sort}
+              onChange={e => updateParam('sort', e.target.value)}
+              className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-3 py-2.5 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-300"
             >
-              {opt.label}
-            </button>
-          ))}
+              {SORT_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
+              ▾
+            </span>
+          </div>
         </div>
 
         {/* Results count */}

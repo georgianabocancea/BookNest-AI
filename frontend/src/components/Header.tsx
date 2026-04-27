@@ -13,7 +13,7 @@ const Header = () => {
     <nav className={`px-6 py-4 flex justify-between items-center ${isLanding ? 'bg-transparent absolute w-full z-10' : 'bg-white shadow-sm'}`}>
       <h1
         className={`text-2xl font-bold cursor-pointer ${isLanding ? 'text-white' : 'text-amber-800'}`}
-        onClick={() => navigate(isAuthenticated ? '/library' : '/')}
+        onClick={() => navigate('/')}
       >
         🪺 BookNest AI
       </h1>
