@@ -62,7 +62,7 @@ class UserBook(db.Model):
     status = db.Column(db.String(20), nullable=False)
     rating = db.Column(db.SmallInteger)
     review = db.Column(db.Text)
-    progress = db.Column(db.SmallInteger, default=0)
+    progress = db.Column(db.Integer, default=0)
     start_date = db.Column(db.Date)
     finish_date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

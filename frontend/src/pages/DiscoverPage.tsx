@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import API from '../services/api';
-import NestieWidget from '../components/NestieWidget';
+import Header from '../components/Header';
 
 interface Book {
   id: number;
@@ -15,22 +15,39 @@ interface Book {
   isbn: string;
 }
 
+const SORT_OPTIONS = [
+  { value: 'az', label: 'A–Z' },
+  { value: 'top_rated', label: '⭐ Top Rated' },
+  { value: 'newest', label: '🆕 Newest' },
+  { value: 'oldest', label: '📜 Oldest' },
+];
+
 const DiscoverPage = () => {
   const [books, setBooks] = useState<Book[]>([]);
-  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [addedBooks, setAddedBooks] = useState<number[]>([]);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string>('to_read');
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const search = searchParams.get('q') || '';
+  const genre = searchParams.get('genre') || '';
+  const author = searchParams.get('author') || '';
+  const sort = searchParams.get('sort') || 'az';
 
   useEffect(() => {
     fetchBooks();
-  }, []);
+  }, [search, genre, author, sort]);
 
   const fetchBooks = async () => {
+    setLoading(true);
     try {
-      const res = await API.get('/books/');
+      const params = new URLSearchParams();
+      if (search) params.set('q', search);
+      if (genre) params.set('genre', genre);
+      if (author) params.set('author', author);
+      if (sort) params.set('sort', sort);
+      const res = await API.get(`/books/?${params.toString()}`);
       setBooks(res.data);
     } catch (err) {
       console.error(err);
@@ -39,14 +56,12 @@ const DiscoverPage = () => {
     }
   };
 
-  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-    if (e.target.value.length > 1) {
-      const res = await API.get(`/books/search?q=${e.target.value}`);
-      setBooks(res.data);
-    } else if (e.target.value.length === 0) {
-      fetchBooks();
-    }
+  const updateParam = (key: string, value: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    if (key !== 'q') next.delete('q');
+    setSearchParams(next);
   };
 
   const openModal = (book: Book) => {
@@ -61,59 +76,89 @@ const DiscoverPage = () => {
         book_id: selectedBook.id,
         status: selectedStatus
       });
-      setAddedBooks(prev => [...prev, selectedBook.id]);
+      setAddedBooks(prev => (prev.includes(selectedBook.id) ? prev : [...prev, selectedBook.id]));
       setSelectedBook(null);
     } catch (err: any) {
       if (err.response?.data?.error === 'Cartea e deja în bibliotecă') {
-        setAddedBooks(prev => [...prev, selectedBook.id]);
+        setAddedBooks(prev => (prev.includes(selectedBook.id) ? prev : [...prev, selectedBook.id]));
         setSelectedBook(null);
       }
     }
   };
 
-  const filteredBooks = books.filter(b =>
-    b.title.toLowerCase().includes(search.toLowerCase()) ||
-    b.author.toLowerCase().includes(search.toLowerCase())
-  );
+  const isSelectedBookAdded = selectedBook ? addedBooks.includes(selectedBook.id) : false;
 
   return (
     <div className="min-h-screen bg-amber-50">
-      {/* Navbar */}
-      <nav className="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
-        <h1
-          className="text-2xl font-bold text-amber-800 cursor-pointer"
-          onClick={() => navigate('/library')}
-        >
-          🪺 BookNest
-        </h1>
-        <button
-          onClick={() => navigate('/library')}
-          className="text-sm text-gray-500 hover:text-amber-700 transition-colors"
-        >
-          ← Back to library
-        </button>
-      </nav>
+      <Header />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Discover books</h2>
 
+        {/* Search */}
         <input
           type="text"
           value={search}
-          onChange={handleSearch}
+          onChange={e => updateParam('q', e.target.value)}
           placeholder="Search by title or author..."
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
+          className="w-full border border-gray-200 rounded-xl px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
         />
 
+        {/* Active filters */}
+        {(genre || author) && (
+          <div className="flex gap-2 mb-4 flex-wrap">
+            {genre && (
+              <span className="flex items-center gap-1 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
+                Genre: {genre}
+                <button onClick={() => updateParam('genre', '')} className="ml-1 hover:text-red-500">✕</button>
+              </span>
+            )}
+            {author && (
+              <span className="flex items-center gap-1 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
+                Author: {author}
+                <button onClick={() => updateParam('author', '')} className="ml-1 hover:text-red-500">✕</button>
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Sort options */}
+        <div className="flex gap-2 mb-6 flex-wrap">
+          {SORT_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => updateParam('sort', opt.value)}
+              className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-all ${
+                sort === opt.value
+                  ? 'bg-amber-700 text-white'
+                  : 'bg-white text-gray-600 hover:bg-amber-100'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Results count */}
+        {!loading && (
+          <p className="text-sm text-gray-400 mb-4">{books.length} books found</p>
+        )}
+
+        {/* Books grid */}
         {loading ? (
           <p className="text-center text-gray-400 py-12">Loading...</p>
+        ) : books.length === 0 ? (
+          <div className="text-center py-16 text-gray-400">
+            <p className="text-5xl mb-4">🔍</p>
+            <p className="text-lg">No books found.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredBooks.map(book => (
+            {books.map(book => (
               <div
                 key={book.id}
                 className="bg-white rounded-2xl shadow-sm p-4 flex gap-4 cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => !addedBooks.includes(book.id) && openModal(book)}
+                onClick={() => openModal(book)}
               >
                 <div className="w-16 h-24 flex-shrink-0">
                   {book.cover_url ? (
@@ -124,11 +169,22 @@ const DiscoverPage = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-gray-800 truncate">{book.title}</h3>
-                  <p className="text-sm text-gray-500">{book.author} · {book.year}</p>
-                  <p className="text-xs text-gray-400">{book.pages} pages</p>
+                  <button
+                    onClick={e => { e.stopPropagation(); updateParam('author', book.author); }}
+                    className="text-sm text-amber-700 hover:underline text-left"
+                  >
+                    {book.author}
+                  </button>
+                  <p className="text-xs text-gray-400">{book.year} · {book.pages} pages</p>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {book.genres.slice(0, 2).map(g => (
-                      <span key={g} className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">{g}</span>
+                      <button
+                        key={g}
+                        onClick={e => { e.stopPropagation(); updateParam('genre', g); }}
+                        className="text-xs bg-amber-100 hover:bg-amber-200 text-amber-700 px-2 py-0.5 rounded-full transition-colors"
+                      >
+                        {g}
+                      </button>
                     ))}
                   </div>
                   {addedBooks.includes(book.id) ? (
@@ -145,8 +201,10 @@ const DiscoverPage = () => {
 
       {/* Modal */}
       {selectedBook && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4"
+          onClick={() => setSelectedBook(null)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-96 overflow-y-auto shadow-xl"
+            onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-4">
               <div className="flex gap-3">
                 {selectedBook.cover_url && (
@@ -161,7 +219,13 @@ const DiscoverPage = () => {
               <button onClick={() => setSelectedBook(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
             </div>
 
-            <p className="text-sm text-gray-600 mb-4 line-clamp-3">{selectedBook.description}</p>
+            <p className="text-sm text-gray-600 mb-4">{selectedBook.description}</p>
+
+            <div className="flex flex-wrap gap-1 mb-4">
+              {selectedBook.genres.map(g => (
+                <span key={g} className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">{g}</span>
+              ))}
+            </div>
 
             <label className="block text-sm font-medium text-gray-700 mb-2">Add to:</label>
             <div className="flex gap-2 mb-6">
@@ -186,14 +250,19 @@ const DiscoverPage = () => {
 
             <button
               onClick={addToLibrary}
-              className="w-full bg-amber-700 hover:bg-amber-800 text-white py-2.5 rounded-xl text-sm font-medium transition-colors"
+              disabled={isSelectedBookAdded}
+              className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                isSelectedBookAdded
+                  ? 'bg-green-100 text-green-700 cursor-not-allowed'
+                  : 'bg-amber-700 hover:bg-amber-800 text-white'
+              }`}
             >
-              Add to library
+              {isSelectedBookAdded ? 'Already in library' : 'Add to library'}
             </button>
           </div>
         </div>
       )}
-      <NestieWidget />
+
     </div>
   );
 };

@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS user_books (
     status      VARCHAR(20) CHECK (status IN ('completed', 'reading', 'to_read')) NOT NULL,
     rating      SMALLINT CHECK (rating BETWEEN 1 AND 5),
     review      TEXT,
-    progress    SMALLINT DEFAULT 0 CHECK (progress BETWEEN 0 AND 100),
+    progress    INTEGER DEFAULT 0 CHECK (progress >= 0),
     start_date  DATE,
     finish_date DATE,
     created_at  TIMESTAMP DEFAULT NOW(),

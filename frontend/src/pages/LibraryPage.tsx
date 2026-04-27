@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import API from '../services/api';
-import NestieWidget from '../components/NestieWidget';
+import { useSearchParams } from 'react-router-dom';
+import Header from '../components/Header';
 
 interface Book {
   id: number;
@@ -25,10 +24,10 @@ interface UserBook {
 }
 
 const LibraryPage = () => {
-  const { username, logout } = useAuth();
-  const navigate = useNavigate();
   const [userBooks, setUserBooks] = useState<UserBook[]>([]);
-  const [activeTab, setActiveTab] = useState<'to_read' | 'reading' | 'read'>('reading');
+  const [searchParams] = useSearchParams();
+  const initialTab = (searchParams.get('status') as 'to_read' | 'reading' | 'read') || 'reading';
+  const [activeTab, setActiveTab] = useState<'to_read' | 'reading' | 'read'>(initialTab);
   const [loading, setLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState<UserBook | null>(null);
   const [editProgress, setEditProgress] = useState(0);
@@ -56,6 +55,16 @@ const LibraryPage = () => {
     setEditReview(ub.review || '');
     setEditStatus(ub.status);
   };
+
+  useEffect(() => {
+    const bookParam = searchParams.get('book');
+    if (bookParam && userBooks.length > 0) {
+      const found = userBooks.find(ub =>
+        ub.book.title.toLowerCase() === bookParam.toLowerCase()
+      );
+      if (found) openEdit(found);
+    }
+  }, [userBooks, searchParams]);
 
   const saveEdit = async () => {
     if (!selectedBook) return;
@@ -96,18 +105,7 @@ const LibraryPage = () => {
 
   return (
     <div className="min-h-screen bg-amber-50">
-      <nav className="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-amber-800">🪺 BookNest</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-gray-600">Hello, <strong>{username}</strong>!</span>
-          <button onClick={() => navigate('/discover')} className="text-sm text-amber-700 hover:text-amber-900 font-medium transition-colors">
-            + Discover books
-          </button>
-          <button onClick={logout} className="text-sm text-gray-500 hover:text-red-500 transition-colors">
-            Sign out
-          </button>
-        </div>
-      </nav>
+      <Header />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">My Library</h2>
@@ -306,7 +304,6 @@ const LibraryPage = () => {
         </div>
 
       )}
-      <NestieWidget />
     </div>
   );
 };
