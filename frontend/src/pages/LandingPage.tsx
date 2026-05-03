@@ -78,9 +78,9 @@ const LandingPage = () => {
       <div className="bg-white bg-opacity-10 backdrop-blur-sm px-6 py-12">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { emoji: '📚', title: 'Your Library', desc: 'Organize books into To Read, Reading, and Read. Track progress, rate and review.' },
-            { emoji: '🔍', title: 'Discover', desc: 'Browse 138 curated books. Filter by genre, author, or sort by top rated.' },
-            { emoji: '🪺', title: 'Meet Nestie', desc: 'Your AI reading assistant. Get personalized recommendations and help writing reviews.' },
+            { emoji: '📚', title: 'Your Library', desc: 'Keep your books organized—what you want to read, what you’re reading, and what you’ve finished. Track your progress and share your thoughts.' },
+            { emoji: '🔍', title: 'Discover', desc: 'Find your next read. Browse, filter, and sort books the way you like.' },
+            { emoji: '🪺', title: 'Meet Nestie', desc: 'Your AI reading companion. Get personalized book suggestions and a little help when writing reviews.' },
           ].map(f => (
             <div key={f.title} className="bg-white bg-opacity-20 rounded-2xl p-6 text-center">
               <span className="text-4xl mb-3 block">{f.emoji}</span>

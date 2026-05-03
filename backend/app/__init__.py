@@ -11,9 +11,7 @@ load_dotenv()
 db = SQLAlchemy()
 jwt = JWTManager()
 
-
 def _apply_progress_constraint_patch(app):
-    # Auto-fix legacy DB schema where progress was limited to 0..100.
     with app.app_context():
         if db.engine.dialect.name != 'postgresql':
             return

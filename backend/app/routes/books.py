@@ -7,7 +7,6 @@ from sqlalchemy.exc import IntegrityError
 
 books_bp = Blueprint('books', __name__)
 
-
 def _patch_legacy_progress_constraint():
     if db.engine.dialect.name != 'postgresql':
         return
