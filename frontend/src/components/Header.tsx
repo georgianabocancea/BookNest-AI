@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -6,14 +6,13 @@ const Header = () => {
   const { isAuthenticated, username, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const isLanding = location.pathname === '/';
   const isActive = (path: string) => location.pathname === path;
 
   const navBtn = (path: string, label: string) => (
     <button
-      onClick={() => { navigate(path); setMenuOpen(false); }}
+      onClick={() => navigate(path)}
       className={`text-sm font-medium px-3 py-1.5 rounded-xl transition-all ${
         isLanding
           ? isActive(path)
@@ -32,7 +31,6 @@ const Header = () => {
     <nav className={`px-6 py-3 flex justify-between items-center ${
       isLanding ? 'bg-transparent absolute w-full z-10' : 'bg-white border-b border-gray-100 shadow-sm'
     }`}>
-      {/* Logo */}
       <h1
         className={`text-xl font-bold cursor-pointer tracking-tight ${isLanding ? 'text-white' : 'text-amber-800'}`}
         onClick={() => navigate('/')}
@@ -40,13 +38,12 @@ const Header = () => {
         🪺 BookNest AI
       </h1>
 
-      {/* Desktop nav */}
       <div className="flex items-center gap-1">
         {navBtn('/discover', '🔍 Discover')}
 
         {isAuthenticated ? (
           <>
-            {navBtn('/add-book', '+ Add Book')}
+            {navBtn('/add-book', '➕ Add Book')}
             {navBtn('/library', '📚 My Library')}
             {navBtn('/profile', '👤 My Profile')}
 
