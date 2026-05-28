@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import API from '../services/api';
 import Header from '../components/Header';
 
@@ -88,13 +88,22 @@ const DiscoverPage = () => {
   };
 
   const isSelectedBookAdded = selectedBook ? addedBooks.includes(selectedBook.id) : false;
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-amber-50">
       <Header />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Discover books</h2>
+        <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Discover books</h2>
+        <button
+          onClick={() => navigate('/add-book')}
+          className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+        >
+          + Add Book
+        </button>
+      </div>
 
         {/* Search */}
         <input

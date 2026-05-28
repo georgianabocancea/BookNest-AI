@@ -176,3 +176,20 @@ def remove_from_library(ub_id):
     db.session.delete(ub)
     db.session.commit()
     return jsonify({'message': 'Carte ștearsă din bibliotecă'})
+
+@books_bp.route('/community', methods=['GET'])
+def get_community_books():
+    books = Book.query.filter(
+        Book.added_by_user_id.isnot(None)
+    ).order_by(Book.created_at.desc()).limit(20).all()
+    
+    result = []
+    for book in books:
+        from app.models import User
+        user = User.query.get(book.added_by_user_id)
+        book_dict = book.to_dict()
+        book_dict['added_by'] = user.username if user else 'Unknown'
+        book_dict['added_at'] = book.created_at.strftime('%B %d, %Y') if book.created_at else None
+        result.append(book_dict)
+    
+    return jsonify(result)

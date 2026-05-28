@@ -7,6 +7,10 @@ import LibraryPage from './pages/LibraryPage';
 import DiscoverPage from './pages/DiscoverPage';
 import ProfilePage from './pages/ProfilePage';
 import NestieWidget from './components/NestieWidget';
+import AddBookPage from './pages/AddBookPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -24,8 +28,11 @@ const AppContent = () => {
         <Route path="/discover" element={<DiscoverPage />} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-      {isAuthenticated && <NestieWidget />}
+        <Route path="/add-book" element={<ProtectedRoute><AddBookPage /></ProtectedRoute>} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+      </Routes>{isAuthenticated && <NestieWidget />}
     </>
   );
 };

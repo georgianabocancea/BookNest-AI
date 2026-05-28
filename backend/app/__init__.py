@@ -1,4 +1,4 @@
-from flask import Flask, app
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -15,7 +15,6 @@ def _apply_progress_constraint_patch(app):
     with app.app_context():
         if db.engine.dialect.name != 'postgresql':
             return
-
         try:
             with db.engine.begin() as conn:
                 conn.execute(text(
@@ -71,11 +70,14 @@ def create_app():
 
     from app.routes.auth import auth_bp
     from app.routes.books import books_bp
+    from app.routes.nestie import nestie_bp
+    from app.routes.profile import profile_bp
+    from app.routes.add_book import add_book_bp
+
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(books_bp, url_prefix='/api/books')
-    from app.routes.nestie import nestie_bp
     app.register_blueprint(nestie_bp, url_prefix='/api/nestie')
-    from app.routes.profile import profile_bp
     app.register_blueprint(profile_bp, url_prefix='/api/profile')
+    app.register_blueprint(add_book_bp, url_prefix='/api/add')
 
     return app

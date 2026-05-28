@@ -12,12 +12,18 @@ class User(db.Model):
     bio = db.Column(db.Text)
     daily_notification = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_verified = db.Column(db.Boolean, default=False)
+    verification_token = db.Column(db.String(255))
+    token_expires_at = db.Column(db.DateTime)
+    reset_token = db.Column(db.String(255))
+    reset_token_expires_at = db.Column(db.DateTime)
 
     user_books = db.relationship('UserBook', backref='user', lazy=True)
 
 class Book(db.Model):
     __tablename__ = 'books'
 
+    added_by_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(500), nullable=False)
     author = db.Column(db.String(255), nullable=False)

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import API from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,32 +10,46 @@ const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     try {
       const endpoint = isRegister ? '/auth/register' : '/auth/login';
       const payload = isRegister
         ? { email, username, password }
         : { email, password };
       const res = await API.post(endpoint, payload);
-      login(res.data.token, res.data.username);
-      navigate('/library');
+
+      if (isRegister) {
+        setSuccessMessage(res.data.message || 'Account created! Please check your email to verify your account.');
+        setEmail('');
+        setUsername('');
+        setPassword('');
+      } else {
+        login(res.data.token, res.data.username);
+        navigate('/library');
+      }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Something went wrong. Please try again.');
+      if (err.response?.data?.not_verified) {
+        setError('Please verify your email before logging in. Check your inbox!');
+      } else {
+        setError(err.response?.data?.error || 'Something went wrong. Try again.');
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-md">
-        
+
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-800">🪺 Booknest AI</h1>
+          <h1 className="text-4xl font-bold text-amber-800">🪺 BookNest AI</h1>
           <p className="text-gray-500 mt-2">Your reading nest</p>
         </div>
 
@@ -45,7 +59,7 @@ const LoginPage = () => {
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
               !isRegister ? 'bg-white shadow text-amber-800' : 'text-gray-500'
             }`}
-            onClick={() => setIsRegister(false)}
+            onClick={() => { setIsRegister(false); setError(''); setSuccessMessage(''); }}
           >
             Sign in
           </button>
@@ -53,7 +67,7 @@ const LoginPage = () => {
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
               isRegister ? 'bg-white shadow text-amber-800' : 'text-gray-500'
             }`}
-            onClick={() => setIsRegister(true)}
+            onClick={() => { setIsRegister(true); setError(''); setSuccessMessage(''); }}
           >
             New account
           </button>
@@ -103,12 +117,28 @@ const LoginPage = () => {
             <p className="text-red-500 text-sm text-center">{error}</p>
           )}
 
+          {successMessage && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+              <p className="text-green-700 text-sm text-center">{successMessage}</p>
+            </div>
+          )}
+
           <button
             type="submit"
             className="w-full bg-amber-700 hover:bg-amber-800 text-white font-medium py-2.5 rounded-xl transition-colors"
           >
             {isRegister ? 'Create account' : 'Sign in'}
           </button>
+
+          {!isRegister && (
+            <button
+              type="button"
+              onClick={() => navigate('/forgot-password')}
+              className="w-full text-sm text-gray-400 hover:text-amber-700 transition-colors mt-1"
+            >
+              Forgot your password?
+            </button>
+          )}
         </form>
       </div>
     </div>

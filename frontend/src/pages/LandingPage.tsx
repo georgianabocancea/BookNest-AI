@@ -14,13 +14,9 @@ const QUOTES = [
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, username } = useAuth();
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [fade, setFade] = useState(true);
-
-  useEffect(() => {
-    if (isAuthenticated) navigate('/library');
-  }, [isAuthenticated]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -45,24 +41,48 @@ const LandingPage = () => {
           <span className="text-8xl">🪺</span>
         </div>
         <h1 className="text-6xl font-bold text-white mb-4">BookNest AI</h1>
-        <p className="text-xl text-amber-100 mb-12 max-w-lg">
-          Your personal reading sanctuary. Track your books, discover new ones, and chat with Nestie — your AI reading assistant.
-        </p>
 
-        <div className="flex gap-4 mb-16">
-          <button
-            onClick={() => navigate('/login?mode=register')}
-            className="bg-white text-amber-800 font-semibold px-8 py-3 rounded-2xl hover:bg-amber-50 transition-colors shadow-lg"
-          >
-            Get started
-          </button>
-          <button
-            onClick={() => navigate('/discover')}
-            className="border-2 border-white text-white font-semibold px-8 py-3 rounded-2xl hover:bg-white hover:text-amber-800 transition-colors"
-          >
-            Browse books
-          </button>
-        </div>
+        {isAuthenticated ? (
+          <>
+            <p className="text-xl text-amber-100 mb-4 max-w-lg">
+              Welcome back, <strong>{username}</strong>! Ready to keep reading?
+            </p>
+            <div className="flex gap-4 mb-16">
+              <button
+                onClick={() => navigate('/library')}
+                className="bg-white text-amber-800 font-semibold px-8 py-3 rounded-2xl hover:bg-amber-50 transition-colors shadow-lg"
+              >
+                My Library
+              </button>
+              <button
+                onClick={() => navigate('/discover')}
+                className="border-2 border-white text-white font-semibold px-8 py-3 rounded-2xl hover:bg-white hover:text-amber-800 transition-colors"
+              >
+                Discover Books
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-xl text-amber-100 mb-12 max-w-lg">
+              Your personal reading sanctuary. Track your books, discover new ones, and chat with Nestie — your AI reading assistant.
+            </p>
+            <div className="flex gap-4 mb-16">
+              <button
+                onClick={() => navigate('/login?mode=register')}
+                className="bg-white text-amber-800 font-semibold px-8 py-3 rounded-2xl hover:bg-amber-50 transition-colors shadow-lg"
+              >
+                Get started — it's free
+              </button>
+              <button
+                onClick={() => navigate('/discover')}
+                className="border-2 border-white text-white font-semibold px-8 py-3 rounded-2xl hover:bg-white hover:text-amber-800 transition-colors"
+              >
+                Browse books
+              </button>
+            </div>
+          </>
+        )}
 
         {/* Rotating quote */}
         <div
@@ -78,7 +98,7 @@ const LandingPage = () => {
       <div className="bg-white bg-opacity-10 backdrop-blur-sm px-6 py-12">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { emoji: '📚', title: 'Your Library', desc: 'Keep your books organized—what you want to read, what you’re reading, and what you’ve finished. Track your progress and share your thoughts.' },
+            { emoji: '📚', title: 'Your Library', desc: 'Keep your books organized—what you want to read, what you\'re reading, and what you\'ve finished. Track your progress and share your thoughts.' },
             { emoji: '🔍', title: 'Discover', desc: 'Find your next read. Browse, filter, and sort books the way you like.' },
             { emoji: '🪺', title: 'Meet Nestie', desc: 'Your AI reading companion. Get personalized book suggestions and a little help when writing reviews.' },
           ].map(f => (
