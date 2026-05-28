@@ -38,6 +38,7 @@ const DiscoverPage = () => {
 
   useEffect(() => {
     fetchBooks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, genre, author, sort]);
 
   const fetchBooks = async () => {

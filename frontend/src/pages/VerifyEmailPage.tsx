@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../services/api';
@@ -10,17 +10,7 @@ const VerifyEmailPage = () => {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    const token = searchParams.get('token');
-    if (!token) {
-      setStatus('error');
-      setMessage('Invalid verification link.');
-      return;
-    }
-    verifyEmail(token);
-  }, []);
-
-  const verifyEmail = async (token: string) => {
+  const verifyEmail = useCallback(async (token: string) => {
     try {
       const res = await API.post('/auth/verify-email', { token });
       login(res.data.token, res.data.username);
@@ -31,7 +21,17 @@ const VerifyEmailPage = () => {
       setStatus('error');
       setMessage(err.response?.data?.error || 'Verification failed.');
     }
-  };
+  }, [login, navigate]);
+
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (!token) {
+      setStatus('error');
+      setMessage('Invalid verification link.');
+      return;
+    }
+    verifyEmail(token);
+  }, [searchParams, verifyEmail]);
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center px-4">
