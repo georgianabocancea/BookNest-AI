@@ -59,9 +59,20 @@ def _apply_progress_constraint_patch(app):
 def create_app():
     app = Flask(__name__)
     
+    print("DATABASE_URL =", os.getenv("DATABASE_URL"))
     app.config['SQLALCHEMY_DATABASE_URL'] = os.getenv('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+
+    database_url = os.getenv("DATABASE_URL")
+
+    if not database_url:
+        raise ValueError("DATABASE_URL is missing!")
+
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
     db.init_app(app)
     jwt.init_app(app)
