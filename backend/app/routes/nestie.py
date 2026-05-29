@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 from groq import Groq
 import os
 
-load_dotenv()
+if os.getenv("RAILWAY_ENVIRONMENT") is None:
+    load_dotenv()
 nestie_bp = Blueprint('nestie', __name__)
 client = Groq(api_key=os.getenv('OPENAI_API_KEY'))
 

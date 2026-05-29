@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 from sqlalchemy import text
 import os
 
-load_dotenv()
+if os.getenv("RAILWAY_ENVIRONMENT") is None:
+    load_dotenv()
 
 db = SQLAlchemy()
 jwt = JWTManager()

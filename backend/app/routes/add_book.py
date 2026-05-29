@@ -8,7 +8,8 @@ import os
 import requests
 import json
 
-load_dotenv()
+if os.getenv("RAILWAY_ENVIRONMENT") is None:
+    load_dotenv()
 add_book_bp = Blueprint('add_book', __name__)
 client = Groq(api_key=os.getenv('OPENAI_API_KEY'))
 

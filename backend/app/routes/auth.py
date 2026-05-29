@@ -9,7 +9,8 @@ import os
 import secrets
 from datetime import datetime, timedelta
 
-load_dotenv()
+if os.getenv("RAILWAY_ENVIRONMENT") is None:
+    load_dotenv()
 resend.api_key = os.getenv('RESEND_API_KEY')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
