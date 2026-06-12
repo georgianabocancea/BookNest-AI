@@ -11,6 +11,7 @@ import AddBookPage from './pages/AddBookPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import BookReviewsPage from './pages/BookReviewsPage';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -32,6 +33,7 @@ const AppContent = () => {
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/books/:bookId/reviews" element={<BookReviewsPage />} />
       </Routes>{isAuthenticated && <NestieWidget />}
     </>
   );

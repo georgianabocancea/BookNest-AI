@@ -81,6 +81,61 @@ def get_books():
     books = query.all()
     return jsonify([b.to_dict() for b in books])
 
+@books_bp.route('/<int:book_id>/reviews', methods=['GET'])
+def get_book_reviews(book_id):
+    book = Book.query.get_or_404(book_id)
+    rating_filter = request.args.get('rating')
+    sort = request.args.get('sort', 'newest')
+
+    query = UserBook.query.filter_by(book_id=book_id).filter(
+        UserBook.review.isnot(None),
+        UserBook.review != ''
+    )
+
+    if rating_filter:
+        query = query.filter(UserBook.rating == int(rating_filter))
+
+    if sort == 'oldest':
+        query = query.order_by(UserBook.updated_at.asc())
+    else:
+        query = query.order_by(UserBook.updated_at.desc())
+
+    reviews = query.all()
+
+    # Statistici
+    all_ratings = UserBook.query.filter_by(book_id=book_id).filter(
+        UserBook.rating.isnot(None)
+    ).all()
+
+    rating_counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+    for ub in all_ratings:
+        if ub.rating in rating_counts:
+            rating_counts[ub.rating] += 1
+
+    total_ratings = len(all_ratings)
+    avg_rating = round(
+        sum(ub.rating for ub in all_ratings) / total_ratings, 2
+    ) if total_ratings > 0 else None
+
+    return jsonify({
+        'book': book.to_dict(),
+        'stats': {
+            'avg_rating': avg_rating,
+            'total_ratings': total_ratings,
+            'total_reviews': len(reviews),
+            'distribution': rating_counts
+        },
+        'reviews': [
+            {
+                'username': ub.user.username,
+                'rating': ub.rating,
+                'review': ub.review,
+                'date': ub.updated_at.strftime('%B %d, %Y') if ub.updated_at else None
+            }
+            for ub in reviews
+        ]
+    })
+
 @books_bp.route('/<int:book_id>', methods=['GET'])
 def get_book(book_id):
     book = Book.query.get_or_404(book_id)

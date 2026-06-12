@@ -28,8 +28,8 @@ const Header = () => {
   );
 
   return (
-    <nav className={`px-6 py-3 flex justify-between items-center ${
-      isLanding ? 'bg-transparent absolute w-full z-10' : 'bg-white border-b border-gray-100 shadow-sm'
+    <nav className={`sticky top-0 z-40 px-6 py-3 flex justify-between items-center ${
+      isLanding ? 'bg-transparent w-full' : 'bg-white border-b border-gray-100 shadow-sm'
     }`}>
       <h1
         className={`text-xl font-bold cursor-pointer tracking-tight ${isLanding ? 'text-white' : 'text-amber-800'}`}

@@ -72,29 +72,30 @@ def verify_book():
     if not title or not author:
         return jsonify({'error': 'Title and author are required'}), 400
 
-    prompt = f"""You are a book database assistant. The user wants to add a book to a reading app.
+    prompt = f"""You are a book database assistant. 
+    The user wants to add a book to a reading app.
 
-Book provided: "{title}" by {author}{f', published in {year}' if year else ''}
+    Book provided: "{title}" by {author}{f', published in {year}' if year else ''}
 
-Your task:
-1. Verify if this book and author combination is real and correct
-2. If real, provide accurate information about it
-3. If the title or author seems incorrect or doesn't match, say so
+    Your task:
+    1. Verify if this book and author combination is real and correct
+    2. If real, provide accurate information about it
+    3. If the title or author seems incorrect or doesn't match, say so
 
-Respond ONLY with a valid JSON object, no markdown, no explanation:
-{{
-  "is_valid": true or false,
-  "reason": "explain if invalid, or 'Book verified' if valid",
-  "title": "correct title",
-  "author": "correct full author name",
-  "year": year as integer,
-  "pages": number of pages as integer,
-  "description": "2-3 sentence description of the book",
-  "genres": ["genre1", "genre2"],
-  "isbn": "ISBN-13 if known, or null"
-}}
+    Respond ONLY with a valid JSON object, no markdown, no explanation:
+    {{
+        "is_valid": true or false,
+        "reason": "explain if invalid, or 'Book verified' if valid",
+        "title": "correct title",
+        "author": "correct full author name",
+        "year": year as integer,
+        "pages": number of pages as integer,
+        "description": "2-3 sentence description of the book",
+        "genres": ["genre1", "genre2"],
+        "isbn": "ISBN-13 if known, or null"
+    }}
 
-Only include real, accurate information. If you're not sure about pages or ISBN, use null."""
+    Only include real, accurate information. If you're not sure about pages or ISBN, use null."""
 
     try:
         response = client.chat.completions.create(

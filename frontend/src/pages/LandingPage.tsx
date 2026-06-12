@@ -65,7 +65,7 @@ const LandingPage = () => {
         ) : (
           <>
             <p className="text-xl text-amber-100 mb-12 max-w-lg">
-              Your personal reading sanctuary. Track your books, discover new ones, and chat with Nestie — your AI reading assistant.
+              Your personal reading sanctuary. Track your books, discover new ones, and chat with Nestie - your AI reading assistant.
             </p>
             <div className="flex gap-4 mb-16">
               <button
