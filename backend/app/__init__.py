@@ -77,7 +77,7 @@ def create_app():
 
     db.init_app(app)
     jwt.init_app(app)
-    CORS(app, origins=["http://localhost:3000", "http://localhost:3001"])
+    CORS(app, resources={r"/*": {"origins": "*"}})
     _apply_progress_constraint_patch(app)
 
     from app.routes.auth import auth_bp
