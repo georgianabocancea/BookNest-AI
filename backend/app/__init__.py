@@ -65,6 +65,14 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
+    app.config['MAIL_USERNAME'] = os.getenv('GMAIL_USER')
+    app.config['MAIL_PASSWORD'] = os.getenv('GMAIL_APP_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('GMAIL_USER')
+
     database_url = os.getenv("DATABASE_URL")
 
     if not database_url:
