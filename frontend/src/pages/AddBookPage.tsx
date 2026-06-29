@@ -67,7 +67,7 @@ const AddBookPage = () => {
 
     try {
       await API.post('/add/confirm', preview);
-      setSuccess(`"${preview.title}" has been added to BookNest!`);
+      setSuccess(`"${preview.title}" has been added to BookNest AI!`);
       setPreview(null);
       setTitle('');
       setAuthor('');

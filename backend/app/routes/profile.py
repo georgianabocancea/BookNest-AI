@@ -40,7 +40,10 @@ def get_profile():
     # Reviews
     reviews = [
         {
+            'ub_id': ub.id,
+            'book_id': ub.book.id,
             'book_title': ub.book.title,
+            'book_author': ub.book.author,
             'book_cover': ub.book.cover_url,
             'rating': ub.rating,
             'review': ub.review,

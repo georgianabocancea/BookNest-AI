@@ -15,7 +15,10 @@ interface Stats {
 }
 
 interface Review {
+  ub_id?: number;
+  book_id: number;
   book_title: string;
+  book_author: string;
   book_cover: string | null;
   rating: number | null;
   review: string;
@@ -37,6 +40,9 @@ const ProfilePage = () => {
   const [editing, setEditing] = useState(false);
   const [editUsername, setEditUsername] = useState('');
   const [editBio, setEditBio] = useState('');
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -71,6 +77,32 @@ const ProfilePage = () => {
       fetchProfile();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Something went wrong.');
+    }
+  };
+
+  const openReviewEditor = (review: Review) => {
+    setSelectedReview(review);
+    setReviewRating(review.rating || 0);
+    setReviewText(review.review || '');
+    setError('');
+    setSuccess('');
+  };
+
+  const saveReview = async () => {
+    if (!selectedReview) return;
+
+    try {
+      await API.put('/books/library/review', {
+        book_title: selectedReview.book_title,
+        book_author: selectedReview.book_author,
+        rating: reviewRating || null,
+        review: reviewText,
+      });
+      setSuccess('Review updated!');
+      setSelectedReview(null);
+      fetchProfile();
+    } catch (err: any) {
+      setError(err.response?.data?.error || err.message || 'Could not update review.');
     }
   };
 
@@ -140,7 +172,7 @@ const ProfilePage = () => {
           {[
             { label: 'Books read', value: stats.read, emoji: '✅' },
             { label: 'Pages read', value: stats.total_pages.toLocaleString(), emoji: '📄' },
-            { label: 'Avg rating', value: stats.avg_rating ? `${stats.avg_rating} ⭐` : '—', emoji: '⭐' },
+            { label: 'Average rating', value: stats.avg_rating ? `${stats.avg_rating}` : '—', emoji: '⭐' },
             { label: 'Reading now', value: stats.reading, emoji: '📖' },
           ].map(stat => (
             <div key={stat.label} className="bg-white rounded-2xl shadow-sm p-4 text-center">
@@ -205,7 +237,7 @@ const ProfilePage = () => {
               {reviews.map((r, i) => (
                 <button
                   key={i}
-                  onClick={() => navigate(`/library?status=read&book=${encodeURIComponent(r.book_title)}`)}
+                  onClick={() => openReviewEditor(r)}
                   className="w-full bg-white rounded-2xl shadow-sm p-4 flex gap-4 text-left hover:shadow-md transition-shadow"
                 >
                   {r.book_cover ? (
@@ -220,6 +252,76 @@ const ProfilePage = () => {
                   </div>
                 </button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {selectedReview && (
+          <div
+            className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center px-4 py-6"
+            onClick={() => setSelectedReview(null)}
+          >
+            <div
+              className="bg-white rounded-2xl shadow-xl w-full max-w-xl p-6"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-start gap-4 mb-4">
+                <div className="flex gap-3">
+                  {selectedReview.book_cover ? (
+                    <img src={selectedReview.book_cover} alt={selectedReview.book_title} className="w-12 h-16 object-cover rounded-lg flex-shrink-0" />
+                  ) : (
+                    <div className="w-12 h-16 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">📖</div>
+                  )}
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-800">{selectedReview.book_title}</h4>
+                    <p className="text-sm text-gray-500">Edit your rating and review</p>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedReview(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <button
+                      key={star}
+                      onClick={() => setReviewRating(star === reviewRating ? 0 : star)}
+                      className={`text-2xl transition-transform hover:scale-110 ${
+                        star <= reviewRating ? 'opacity-100' : 'opacity-30'
+                      }`}
+                    >
+                      ⭐
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Review</label>
+                <textarea
+                  value={reviewText}
+                  onChange={e => setReviewText(e.target.value)}
+                  rows={5}
+                  placeholder="Write your thoughts about this book..."
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 resize-none"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={saveReview}
+                  className="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-xl text-sm font-medium transition-colors"
+                >
+                  Save review
+                </button>
+                <button
+                  onClick={() => setSelectedReview(null)}
+                  className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         )}

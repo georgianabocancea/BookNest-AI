@@ -49,8 +49,12 @@ const LoginPage = () => {
     <div className="min-h-screen bg-amber-50 flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-800">🪺 BookNest AI</h1>
-          <p className="text-gray-500 mt-2">Your reading nest</p>
+        <h1
+          className="text-4xl font-bold text-amber-800 cursor-pointer"
+          onClick={() => navigate('/')}
+        >
+          🪺 BookNest AI
+        </h1>
         </div>
 
         <div className="flex bg-amber-100 rounded-xl p-1 mb-6">

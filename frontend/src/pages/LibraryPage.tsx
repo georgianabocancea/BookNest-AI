@@ -185,20 +185,20 @@ const LibraryPage = () => {
       {/* Modal */}
       {selectedBook && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4 py-6"
           onClick={() => setSelectedBook(null)}
         >
           <div
-            className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+            className="bg-white rounded-2xl p-5 w-full max-w-2xl shadow-xl"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-4 gap-4">
               <div className="flex gap-3">
                 {selectedBook.book.cover_url && (
                   <img src={selectedBook.book.cover_url} alt={selectedBook.book.title} className="w-14 h-20 object-cover rounded-lg" />
                 )}
                 <div>
-                  <h3 className="font-bold text-gray-800">{selectedBook.book.title}</h3>
+                  <h3 className="font-bold text-gray-800 text-lg leading-tight">{selectedBook.book.title}</h3>
                   <p className="text-sm text-gray-500">{selectedBook.book.author}</p>
                   <p className="text-xs text-gray-400">{selectedBook.book.pages} pages</p>
                 </div>
@@ -218,7 +218,7 @@ const LibraryPage = () => {
                   <button
                     key={s.value}
                     onClick={() => setEditStatus(s.value)}
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
                       editStatus === s.value ? 'bg-amber-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-amber-100'
                     }`}
                   >
@@ -289,13 +289,13 @@ const LibraryPage = () => {
             <div className="flex gap-2 mt-4">
               <button
                 onClick={saveEdit}
-                className="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-2.5 rounded-xl text-sm font-medium transition-colors"
+                className="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-xl text-sm font-medium transition-colors"
               >
                 Save
               </button>
               <button
                 onClick={() => deleteBook(selectedBook.id)}
-                className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl text-sm font-medium transition-colors"
+                className="px-4 py-3 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl text-sm font-medium transition-colors"
               >
                 Remove
               </button>

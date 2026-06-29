@@ -16,13 +16,57 @@ const NestieWidget = () => {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [width, setWidth] = useState(320);
+  const [height, setHeight] = useState(460);
+  const [isResizing, setIsResizing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatBoxRef = useRef<HTMLDivElement>(null);
+
+  // Load dimensions from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('nestie-dimensions');
+    if (saved) {
+      const { w, h } = JSON.parse(saved);
+      setWidth(w);
+      setHeight(h);
+    }
+  }, []);
+
+  // Save dimensions to localStorage
+  useEffect(() => {
+    localStorage.setItem('nestie-dimensions', JSON.stringify({ w: width, h: height }));
+  }, [width, height]);
 
   useEffect(() => {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isOpen]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startWidth = width;
+    const startHeight = height;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+      setWidth(Math.max(300, startWidth - deltaX));
+      setHeight(Math.max(300, startHeight - deltaY));
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
@@ -62,11 +106,13 @@ const NestieWidget = () => {
     <div className="fixed bottom-6 right-6 z-50">
       {/* Chat window */}
       {isOpen && (
-        <div className="mb-4 w-80 bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-gray-100"
-          style={{ height: '460px' }}>
+        <div 
+          ref={chatBoxRef}
+          className="mb-4 bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-gray-100 relative"
+          style={{ width: `${width}px`, height: `${height}px` }}>
           
           {/* Header */}
-          <div className="bg-amber-700 px-4 py-3 flex items-center justify-between">
+          <div className="bg-amber-700 px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="text-xl">🪺</span>
               <div>
@@ -114,7 +160,7 @@ const NestieWidget = () => {
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-gray-100">
+          <div className="p-3 border-t border-gray-100 flex-shrink-0">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -134,6 +180,13 @@ const NestieWidget = () => {
               </button>
             </div>
           </div>
+
+          {/* Resize handle */}
+          <div
+            onMouseDown={handleMouseDown}
+            className={`absolute top-0 left-0 w-5 h-5 cursor-nw-resize ${isResizing ? 'bg-amber-500' : 'bg-gray-300 hover:bg-amber-400'} transition-colors rounded-br-lg`}
+            title="Drag to resize"
+          />
         </div>
       )}
 

@@ -223,6 +223,76 @@ def update_library(ub_id):
 
     return jsonify(ub.to_dict())
 
+@books_bp.route('/library/book/<int:book_id>', methods=['PUT'])
+@jwt_required()
+def update_library_by_book(book_id):
+    user_id = get_jwt_identity()
+    ub = UserBook.query.filter_by(book_id=book_id, user_id=int(user_id)).first_or_404()
+    data = request.get_json()
+
+    if 'status' in data:
+        ub.status = data['status']
+    if 'rating' in data:
+        ub.rating = data['rating']
+    if 'review' in data:
+        ub.review = data['review']
+    if 'progress' in data:
+        try:
+            progress = int(data['progress'])
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Progress must be a valid number of pages'}), 400
+
+        if progress < 0:
+            return jsonify({'error': 'Progress cannot be negative'}), 400
+
+        max_pages = ub.book.pages
+        if max_pages is not None and progress > max_pages:
+            return jsonify({'error': f'Progress cannot be greater than total pages ({max_pages})'}), 400
+
+        ub.progress = progress
+
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'error': 'Could not update reading progress right now'}), 500
+
+    return jsonify(ub.to_dict())
+
+@books_bp.route('/library/review', methods=['PUT'])
+@jwt_required()
+def update_library_review():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    book_title = (data.get('book_title') or '').strip()
+    book_author = (data.get('book_author') or '').strip()
+    if not book_title or not book_author:
+        return jsonify({'error': 'Book title and author are required'}), 400
+
+    ub = UserBook.query.join(Book).filter(
+        UserBook.user_id == int(user_id),
+        Book.title == book_title,
+        Book.author == book_author,
+    ).first_or_404()
+
+    if 'rating' in data:
+        ub.rating = data['rating']
+    if 'review' in data:
+        ub.review = data['review']
+
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'error': 'Could not update review right now'}), 500
+
+    return jsonify(ub.to_dict())
+
+@books_bp.route('/library/review', methods=['OPTIONS'])
+def update_library_review_options():
+    return ('', 204)
+
 @books_bp.route('/library/<int:ub_id>', methods=['DELETE'])
 @jwt_required()
 def remove_from_library(ub_id):

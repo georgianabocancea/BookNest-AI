@@ -260,11 +260,11 @@ const DiscoverPage = () => {
       {/* Modal */}
       {selectedBook && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4 py-6"
           onClick={() => setSelectedBook(null)}
         >
           <div
-            className="bg-white rounded-2xl p-6 w-full max-w-md max-h-96 overflow-y-auto shadow-xl"
+            className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-xl"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-start mb-4">
@@ -281,7 +281,7 @@ const DiscoverPage = () => {
               <button onClick={() => setSelectedBook(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
             </div>
 
-            <p className="text-sm text-gray-600 mb-4">{selectedBook.description}</p>
+            <p className="text-sm text-gray-600 mb-4 leading-relaxed">{selectedBook.description}</p>
 
             <div className="flex flex-wrap gap-1 mb-4">
               {selectedBook.genres.map(g => (
@@ -299,7 +299,7 @@ const DiscoverPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {libraryMap[selectedBook.id] ? 'Change status:' : 'Add to:'}
             </label>
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-5">
               {[
                 { value: 'to_read', label: '📚 To Read' },
                 { value: 'reading', label: '📖 Reading' },
@@ -321,7 +321,7 @@ const DiscoverPage = () => {
 
             <button
               onClick={isAuthenticated ? addToLibrary : goToLogin}
-              className="w-full py-2.5 rounded-xl text-sm font-medium transition-colors bg-amber-700 hover:bg-amber-800 text-white"
+              className="w-full py-3 rounded-xl text-sm font-medium transition-colors bg-amber-700 hover:bg-amber-800 text-white"
             >
               {isAuthenticated
                 ? (libraryMap[selectedBook.id] ? 'Update status' : 'Add to library')
